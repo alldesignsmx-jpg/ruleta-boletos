@@ -4,23 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ruleta de Boletos</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.1/xlsx.full.min.js"></script> <!-- Incluir librería SheetJS -->
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            background-color: #f0f0f0;
+            background-color: #1e1e2f;
+            color: white;
             padding: 50px;
+        }
+
+        h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
         }
 
         #ruleta-container {
             position: relative;
-            width: 300px;
-            height: 300px;
+            width: 400px;
+            height: 400px;
             margin: 0 auto;
             border-radius: 50%;
             border: 8px solid #000;
             background: #fff;
+            color: #000;
         }
 
         .boletos {
@@ -36,16 +42,17 @@
             width: 100%;
             height: 100%;
             text-align: center;
-            line-height: 100%;
+            line-height: 1.5;
             font-size: 16px;
             font-weight: bold;
             transform-origin: 50% 100%;
+            color: white;
         }
 
         #boton {
             background-color: #4CAF50;
             color: white;
-            padding: 15px 20px;
+            padding: 15px 30px;
             font-size: 18px;
             border: none;
             border-radius: 5px;
@@ -65,16 +72,38 @@
         }
 
         #input-boletos {
+            width: 80%;
+            margin: 20px auto;
+            padding: 10px;
+            font-size: 16px;
+            color: #333;
+        }
+
+        #boletos-lista {
+            font-size: 16px;
             margin-top: 20px;
-            font-size: 18px;
-            padding: 5px;
+        }
+
+        #boletos-lista textarea {
+            width: 80%;
+            height: 100px;
+            padding: 10px;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        #input-ganador {
+            width: 80%;
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 16px;
+            color: #333;
         }
     </style>
 </head>
 <body>
     <h1>Ruleta de Boletos</h1>
-    
-    <!-- Ruleta gráfica -->
+
     <div id="ruleta-container">
         <div id="boletos" class="boletos">
             <!-- Aquí se agregarán los segmentos de boletos -->
@@ -82,57 +111,67 @@
     </div>
 
     <br>
+    <input type="text" id="input-boletos" placeholder="Ingresa los boletos (separados por comas)" />
+
+    <br>
+    <input type="text" id="input-ganador" placeholder="0003" />
+
+    <br>
     <button id="boton">¡Girar la Ruleta!</button>
     <div id="resultado"></div>
+
+    <div id="boletos-lista">
+        <h3>Lista de boletos:</h3>
+        <textarea id="boletos-textarea" readonly></textarea>
+    </div>
 
     <script>
         let boletos_vendidos = [];
 
-        // URL del archivo Excel en el repositorio de GitHub
-        const archivoURL = "https:///raw.githubusercontent.com/alldesignsmx-jpg/ruleta-boletos/blob/main/datos.xlsx";  // Cambia la URL por la correcta
+        // Función para agregar los boletos a la ruleta
+        function agregarBoletos() {
+            const boletosTexto = document.getElementById("input-boletos").value;
+            boletos_vendidos = boletosTexto.split(",").map(boleto => boleto.trim());
 
-        // Función para cargar el archivo Excel desde GitHub
-        fetch(archivoURL)
-            .then(response => response.arrayBuffer())
-            .then(data => {
-                const workbook = XLSX.read(data, { type: 'array' });
-                const sheetName = workbook.SheetNames[0];
-                const worksheet = workbook.Sheets[sheetName];
-                const data_json = XLSX.utils.sheet_to_json(worksheet);
-                boletos_vendidos = data_json.filter(row => row.Estatus === "Pagado").map(row => row.Boleto);
+            // Mostrar los boletos en el área de lista
+            document.getElementById("boletos-textarea").value = boletos_vendidos.join("\n");
 
-                // Mostrar los boletos cargados en la consola (opcional)
-                console.log(boletos_vendidos);
+            // Crear los segmentos en la ruleta
+            const boletosDiv = document.getElementById("boletos");
+            boletosDiv.innerHTML = '';  // Limpiar la ruleta antes de agregar nuevos boletos
+            const angleStep = 360 / boletos_vendidos.length;
 
-                // Crear los segmentos en la ruleta
-                const boletosDiv = document.getElementById("boletos");
-                const angleStep = 360 / boletos_vendidos.length;
-
-                boletos_vendidos.forEach((boleto, index) => {
-                    const angle = angleStep * index;
-                    const div = document.createElement('div');
-                    div.style.transform = `rotate(${angle}deg)`;
-                    div.innerHTML = boleto;
-                    boletosDiv.appendChild(div);
-                });
+            boletos_vendidos.forEach((boleto, index) => {
+                const angle = angleStep * index;
+                const div = document.createElement('div');
+                div.style.transform = `rotate(${angle}deg)`;
+                div.innerHTML = boleto;
+                boletosDiv.appendChild(div);
             });
+        }
 
         // Función para girar la ruleta al hacer clic en el botón
         document.getElementById("boton").addEventListener("click", function() {
-            const boleto_especifico = document.getElementById("input-boletos") ? document.getElementById("input-boletos").value : "003"; // Número de boleto fijo o el ingresado por el usuario
-
             if (boletos_vendidos.length === 0) {
-                alert("No se han cargado boletos.");
+                alert("Por favor, ingresa los boletos.");
                 return;
             }
 
-            // Si se especifica un número de boleto, buscarlo en la lista
-            const boleto_ganador = boletos_vendidos.find(boleto => boleto === boleto_especifico);
+            // Obtener el boleto específico si se ha ingresado
+            const boleto_especifico = document.getElementById("input-ganador").value;
+            let boleto_ganador;
 
-            if (boleto_ganador) {
-                document.getElementById("resultado").textContent = `¡El boleto ganador es: ${boleto_ganador}!`;
+            if (boleto_especifico) {
+                // Si se ha especificado un boleto
+                boleto_ganador = boletos_vendidos.find(boleto => boleto === boleto_especifico);
+
+                if (!boleto_ganador) {
+                    document.getElementById("resultado").textContent = `El boleto ${boleto_especifico} no está en la lista.`;
+                    return;
+                }
             } else {
-                document.getElementById("resultado").textContent = `El boleto ${boleto_especifico} no está en la lista.`;
+                // Si no se ha especificado, elegir un boleto aleatorio
+                boleto_ganador = boletos_vendidos[Math.floor(Math.random() * boletos_vendidos.length)];
             }
 
             // Girar la ruleta (agregar animación)
@@ -140,7 +179,15 @@
             const girar = 360 * 5 + Math.random() * 360;  // Girar varias veces más un giro extra aleatorio
             ruleta.style.transition = "transform 4s ease-out";
             ruleta.style.transform = `rotate(${girar}deg)`;
+
+            // Mostrar el boleto ganador después de la animación
+            setTimeout(() => {
+                document.getElementById("resultado").textContent = `¡El boleto ganador es: ${boleto_ganador}!`;
+            }, 4000);
         });
+
+        // Llamar a agregarBoletos cuando se ingrese un boleto
+        document.getElementById("input-boletos").addEventListener("input", agregarBoletos);
     </script>
 </body>
 </html>
