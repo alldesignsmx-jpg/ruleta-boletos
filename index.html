@@ -91,14 +91,6 @@
             font-size: 16px;
             margin-top: 10px;
         }
-
-        #input-ganador {
-            width: 80%;
-            margin-top: 20px;
-            padding: 10px;
-            font-size: 16px;
-            color: #333;
-        }
     </style>
 </head>
 <body>
@@ -114,9 +106,6 @@
     <input type="text" id="input-boletos" placeholder="Ingresa los boletos (separados por comas)" />
 
     <br>
-    <input type="text" id="input-ganador" placeholder="0003" />
-
-    <br>
     <button id="boton">¡Girar la Ruleta!</button>
     <div id="resultado"></div>
 
@@ -127,6 +116,9 @@
 
     <script>
         let boletos_vendidos = [];
+
+        // Número específico de boleto que deseas como ganador (por ejemplo, "003")
+        const boleto_especifico = "003";  // Cambia "003" por el número de boleto que quieras que gane
 
         // Función para agregar los boletos a la ruleta
         function agregarBoletos() {
@@ -157,21 +149,13 @@
                 return;
             }
 
-            // Obtener el boleto específico si se ha ingresado
-            const boleto_especifico = document.getElementById("input-ganador").value;
-            let boleto_ganador;
+            // Buscar el boleto específico en la lista
+            const boleto_ganador = boletos_vendidos.find(boleto => boleto === boleto_especifico);
 
-            if (boleto_especifico) {
-                // Si se ha especificado un boleto
-                boleto_ganador = boletos_vendidos.find(boleto => boleto === boleto_especifico);
-
-                if (!boleto_ganador) {
-                    document.getElementById("resultado").textContent = `El boleto ${boleto_especifico} no está en la lista.`;
-                    return;
-                }
+            if (boleto_ganador) {
+                document.getElementById("resultado").textContent = `¡El boleto ganador es: ${boleto_ganador}!`;
             } else {
-                // Si no se ha especificado, elegir un boleto aleatorio
-                boleto_ganador = boletos_vendidos[Math.floor(Math.random() * boletos_vendidos.length)];
+                document.getElementById("resultado").textContent = `El boleto ${boleto_especifico} no está en la lista.`;
             }
 
             // Girar la ruleta (agregar animación)
@@ -179,11 +163,6 @@
             const girar = 360 * 5 + Math.random() * 360;  // Girar varias veces más un giro extra aleatorio
             ruleta.style.transition = "transform 4s ease-out";
             ruleta.style.transform = `rotate(${girar}deg)`;
-
-            // Mostrar el boleto ganador después de la animación
-            setTimeout(() => {
-                document.getElementById("resultado").textContent = `¡El boleto ganador es: ${boleto_ganador}!`;
-            }, 4000);
         });
 
         // Llamar a agregarBoletos cuando se ingrese un boleto
