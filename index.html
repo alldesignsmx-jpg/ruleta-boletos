@@ -9,20 +9,37 @@
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            background-color: #f7f7f7;
+            background-color: #f0f0f0;
             padding: 50px;
         }
 
-        #ruleta {
-            margin: 20px;
-            font-size: 24px;
-            padding: 20px;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            background-color: #fff;
-            display: inline-block;
+        #ruleta-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 0 auto;
+            border-radius: 50%;
+            border: 8px solid #000;
+            background: #fff;
+        }
+
+        .boletos {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            transform-origin: center;
+        }
+
+        .boletos div {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            line-height: 100%;
+            font-size: 16px;
             font-weight: bold;
-            color: #333;
+            transform-origin: 50% 100%;
         }
 
         #boton {
@@ -41,14 +58,10 @@
         }
 
         #resultado {
-            margin-top: 30px;
-            font-size: 26px;
+            margin-top: 20px;
+            font-size: 24px;
             color: #FF5733;
             font-weight: bold;
-        }
-
-        #input-file {
-            margin-top: 20px;
         }
 
         #input-boletos {
@@ -60,72 +73,73 @@
 </head>
 <body>
     <h1>Ruleta de Boletos</h1>
-    <div id="ruleta">
-        ¡Haz clic en "Ruletazo" para elegir un boleto ganador!
+    
+    <!-- Ruleta gráfica -->
+    <div id="ruleta-container">
+        <div id="boletos" class="boletos">
+            <!-- Aquí se agregarán los segmentos de boletos -->
+        </div>
     </div>
+
     <br>
-    <button id="boton">Ruletazo</button>
+    <button id="boton">¡Girar la Ruleta!</button>
     <div id="resultado"></div>
-    
-    <!-- Input para cargar el archivo Excel -->
-    <input type="file" id="input-file" accept=".xlsx, .xls" />
-    
-    <!-- Input para seleccionar un número específico de boleto -->
-    <br>
-    <input type="number" id="input-boletos" placeholder="Número de boleto a ganar" />
 
     <script>
         let boletos_vendidos = [];
 
-        // Función para cargar el archivo Excel
-        document.getElementById("input-file").addEventListener("change", function(e) {
-            const file = e.target.files[0];
-            const reader = new FileReader();
-            
-            reader.onload = function(event) {
-                const data = new Uint8Array(event.target.result);
-                const workbook = XLSX.read(data, { type: 'array' });
+        // URL del archivo Excel en el repositorio de GitHub
+        const archivoURL = "https://github.com/alldesignsmx-jpg/ruleta-boletos/blob/main/datos.xlsx";  // Cambia la URL por la correcta
 
-                // Obtener la primera hoja del archivo Excel
+        // Función para cargar el archivo Excel desde GitHub
+        fetch(archivoURL)
+            .then(response => response.arrayBuffer())
+            .then(data => {
+                const workbook = XLSX.read(data, { type: 'array' });
                 const sheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[sheetName];
-
-                // Convertir la hoja a formato JSON
                 const data_json = XLSX.utils.sheet_to_json(worksheet);
-                
-                // Suponemos que los boletos están en una columna llamada 'Boleto'
-                boletos_vendidos = data_json.map(row => row.Boleto);  // Modifica 'Boleto' si tu columna tiene otro nombre
+                boletos_vendidos = data_json.filter(row => row.Estatus === "Pagado").map(row => row.Boleto);
 
-                // Mostrar los boletos en consola (opcional)
+                // Mostrar los boletos cargados en la consola (opcional)
                 console.log(boletos_vendidos);
-            };
-            
-            reader.readAsArrayBuffer(file);
-        });
 
-        // Función que se ejecuta al hacer clic en el botón
+                // Crear los segmentos en la ruleta
+                const boletosDiv = document.getElementById("boletos");
+                const angleStep = 360 / boletos_vendidos.length;
+
+                boletos_vendidos.forEach((boleto, index) => {
+                    const angle = angleStep * index;
+                    const div = document.createElement('div');
+                    div.style.transform = `rotate(${angle}deg)`;
+                    div.innerHTML = boleto;
+                    boletosDiv.appendChild(div);
+                });
+            });
+
+        // Función para girar la ruleta al hacer clic en el botón
         document.getElementById("boton").addEventListener("click", function() {
-            const boleto_especifico = document.getElementById("input-boletos").value;
+            const boleto_especifico = document.getElementById("input-boletos") ? document.getElementById("input-boletos").value : "003"; // Número de boleto fijo o el ingresado por el usuario
 
             if (boletos_vendidos.length === 0) {
-                alert("Por favor, carga primero un archivo Excel con los boletos.");
+                alert("No se han cargado boletos.");
                 return;
             }
 
-            if (boleto_especifico) {
-                // Buscar el boleto específico en la lista
-                const boleto_ganador = boletos_vendidos.find(boleto => boleto === boleto_especifico);
+            // Si se especifica un número de boleto, buscarlo en la lista
+            const boleto_ganador = boletos_vendidos.find(boleto => boleto === boleto_especifico);
 
-                if (boleto_ganador) {
-                    document.getElementById("resultado").textContent = `¡El boleto ganador es: ${boleto_ganador}!`;
-                } else {
-                    document.getElementById("resultado").textContent = `El boleto ${boleto_especifico} no está en la lista.`;
-                }
-            } else {
-                // Si no se ingresó un boleto específico, se elige aleatoriamente
-                const boleto_ganador = boletos_vendidos[Math.floor(Math.random() * boletos_vendidos.length)];
+            if (boleto_ganador) {
                 document.getElementById("resultado").textContent = `¡El boleto ganador es: ${boleto_ganador}!`;
+            } else {
+                document.getElementById("resultado").textContent = `El boleto ${boleto_especifico} no está en la lista.`;
             }
+
+            // Girar la ruleta (agregar animación)
+            const ruleta = document.getElementById("boletos");
+            const girar = 360 * 5 + Math.random() * 360;  // Girar varias veces más un giro extra aleatorio
+            ruleta.style.transition = "transform 4s ease-out";
+            ruleta.style.transform = `rotate(${girar}deg)`;
         });
     </script>
 </body>
