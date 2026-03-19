@@ -216,7 +216,7 @@
 <script>
 // Lista de participantes
 const participantes = [
-  { boleto: 00101, nombre_completo: "	Alexis Valentín García González", url: "#" },
+  { boleto: 1, nombre_completo: "Juan Pérez", url: "#" },
   { boleto: 2, nombre_completo: "María López", url: "#" },
   { boleto: 3, nombre_completo: "Carlos García", url: "#" },
   // Agrega más participantes aquí...
@@ -271,7 +271,7 @@ const participantes = [
       const ganadores = [];
 
       // Asignamos un boleto específico manualmente como ganador
-      const boletoGanador = 00101; // Cambia este número al boleto que deseas que gane
+      const boletoGanador = 3; // Cambia este número al boleto que deseas que gane
 
       // Buscamos al participante con ese boleto
       const ganadorManual = participantes.find(p => p.boleto === boletoGanador);
@@ -320,10 +320,51 @@ const participantes = [
       btnSortear.textContent = oldTxt;
     }
   }
+
+  /* ========= Motor de giro ========= */
+  let spinning = false, paused = false, rot = 0, vel = 0, rafId = null, last = performance.now();
+
+  function render(){
+    wheel.style.transition='transform .06s linear';
+    wheel.style.setProperty('--rot', rot+'turn');
+  }
+
+  function step(now){
+    const dt=(now-last)/1000; last=now;
+    if(spinning && !paused){
+      const target=1.7, accel=2.0;
+      vel += (target-vel)*Math.min(1, accel*dt);
+      rot += vel*dt;
+    }
+    render(); rafId=requestAnimationFrame(step);
+  }
+
+  function startSpin(){
+    if(spinning && !paused) return;
+    spinning=true; paused=false; last=performance.now();
+    blip(660,.06,'sawtooth'); spawnBurst(12);
+    if(!rafId) rafId=requestAnimationFrame(step);
+  }  
+
+  /* ========= Partículas ========= */
+  function spawnBurst(n=24){
+    for(let i=0;i<n;i++){
+      const s=document.createElement('div'); s.className='spark';
+      const x0=(wheel.clientWidth/2)+(Math.random()*40-20);
+      const y0=(wheel.clientHeight/2)+(Math.random()*40-20);
+      const a=Math.random()*Math.PI*2; const d=160+Math.random()*240;
+      const x1=x0+Math.cos(a)*d, y1=y0+Math.sin(a)*d;
+      s.style.setProperty('--x0',`${x0}px`); s.style.setProperty('--y0',`${y0}px`);
+      s.style.setProperty('--x1',`${x1}px`); s.style.setProperty('--y1',`${y1}px`);
+      const t=700+Math.random()*400; s.style.animation=`fly ${t}ms ease-out forwards`;
+      burst.appendChild(s); setTimeout(()=>s.remove(), t+20);
+    }
+  }
+
   /* ========= Botones existentes ========= */  
   btnSortear?.addEventListener('click', sortear);
 
-  // efecto inicial visual
+  // Efecto inicial visual
   setTimeout(()=>spawnBurst(16), 600);
 })();
 </script>
