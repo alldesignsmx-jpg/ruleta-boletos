@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Ruletazo — Azar y Riesgo (Bootstrap)</title>
 
-<!-- Bootstrap 5 -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
 <style>
@@ -19,30 +18,21 @@
     color:#e9f2ff; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Arial,sans-serif;
   }
 
-  /* Contenedor principal */
   .page-wrap{ width:100%; padding:32px 16px 40px; }
   @media (min-width:992px){ .page-wrap{ padding-top:48px; } }
 
   h1{
-    font-weight:800; 
-    letter-spacing:.5px; 
-    margin:6px 0 0 0; 
-    text-align:center;
+    font-weight:800; letter-spacing:.5px; margin:6px 0 0 0; text-align:center;
     background:linear-gradient(90deg, #fff, #a7f0ff 40%, #ffa6d1 60%, #fff);
-    -webkit-background-clip:text; 
-    background-clip:text; 
-    color:transparent;
-    text-shadow:0 0 18px #60f, 0 0 28px #0ff3;
-    text-transform:uppercase;
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    text-shadow:0 0 18px #60f, 0 0 28px #0ff3; text-transform:uppercase;
   }
   .sub{ text-align:center; opacity:.85; margin-bottom:22px; }
 
-  /* Panel (ruleta) */
   .panel{
     position:relative; width:100%; max-width:720px; aspect-ratio:1/1;
     border-radius:28px; padding:22px; margin-inline:auto;
-    background:
-      radial-gradient(circle at 50% 30%, #2df 0 2px, transparent 60px),
+    background: radial-gradient(circle at 50% 30%, #2df 0 2px, transparent 60px),
       radial-gradient(120% 120% at 80% 10%, #ffffff08 0%, transparent 50%),
       linear-gradient(180deg, #0a0c1a, #141832);
     box-shadow: inset 0 0 0 1px #ffffff18, 0 30px 60px #0008, 0 0 120px #0ff2;
@@ -55,367 +45,199 @@
     z-index:4;
   }
   .wheel{
-    --rot:0turn;
     width:100%; height:100%; border-radius:50%;
     position:relative; display:grid; place-items:center;
-    transform:rotate(var(--rot));
-    transition:transform cubic-bezier(.2,.9,.15,1);
-    background:
-      conic-gradient(from 0turn,
+    transition: transform 0s linear;
+    background: conic-gradient(from 0turn,
         #20e3b2 0 10%, #2b82ff 10% 20%, #ff6f91 20% 30%, #ffd166 30% 40%,
         #6ba4ff 40% 50%, #7cffcb 50% 60%, #ff9a8b 60% 70%, #ffe29a 70% 80%,
         #a18cd1 80% 90%, #fbc2eb 90% 100%);
     box-shadow: inset 0 0 0 10px #0008, inset 0 0 0 2px #fff4, 0 0 0 12px #00ffff18;
     overflow:hidden;
   }
-  .ticks-svg{
-    position:absolute; 
-    inset:-3%; 
-    filter: drop-shadow(0 0 4px #ffffffff);
-    z-index:2; pointer-events:none;
-  }
   .hub{
     width:26%; aspect-ratio:1/1; border-radius:50%;
     background:radial-gradient(circle at 35% 35%, #fff, #c6f8ff 45%, #00e5ff 70%, #0047ff 100%);
     box-shadow:inset 0 0 0 6px #00000055, 0 0 40px var(--glow), 0 0 90px #00fff488;
     display:grid; place-items:center; font-weight:900; color:#001; letter-spacing:.5px; text-transform:uppercase;
-    z-index:3;
-    font-size: clamp(0.5rem, 2vw, 1rem);
-    padding: 8px;
-    text-align: center;
-    word-break: break-word;
-    line-height: 1.1;
+    z-index:3; font-size: clamp(0.5rem, 2vw, 1rem); padding: 8px; text-align: center;
   }
-  .burst{ position:absolute; inset:-10% -10%; pointer-events:none; overflow:visible; z-index:5; }
+  .burst{ position:absolute; inset:0; pointer-events:none; z-index:5; }
   .spark{
     position:absolute; width:6px; height:6px; border-radius:50%;
     background:radial-gradient(circle, #fff 30%, #0ff 70%, transparent 72%);
-    filter:blur(.2px) drop-shadow(0 0 6px #0ff) drop-shadow(0 0 18px #0ff);
-    opacity:0; transform:translate(-50%,-50%) scale(.4);
-    animation:none;
+    filter:blur(.2px) drop-shadow(0 0 6px #0ff); opacity:0;
   }
 
-  /* Botones / acciones */
+  @keyframes fly {
+    0% { opacity:1; transform: translate(var(--x0), var(--y0)) scale(1); }
+    100% { opacity:0; transform: translate(var(--x1), var(--y1)) scale(0.2); }
+  }
+
   .btn-neo{
     padding:12px 18px; border:none; border-radius:999px; cursor:pointer; font-weight:800;
     color:#0a0c1a; background:linear-gradient(180deg, #e8fbff, #bff2ff);
-    box-shadow: 0 10px 24px #00ffff22, inset 0 0 0 2px #ffffffaa, inset 0 -6px 14px #00ffff33;
-    transition:transform .1s ease, box-shadow .2s ease, filter .2s ease;
+    box-shadow: 0 10px 24px #00ffff22, inset 0 0 0 2px #ffffffaa;
+    transition:transform .1s ease;
   }
-  .btn-neo:hover{ transform:translateY(-1px); filter:saturate(1.2) }
-  .btn-neo:active{ transform:translateY(0); box-shadow:0 6px 16px #00ffff22, inset 0 0 0 2px #fff }
+  .btn-neo:disabled{ opacity: 0.6; cursor: not-allowed; }
   .start{ background:linear-gradient(180deg, #caffbf, #7cffcb); }
-  .pause{ background:linear-gradient(180deg, #ffe8a3, #ffd166); }
-  .stop { background:linear-gradient(180deg, #ffb3c7, #ff6f91); color:#280010; }
 
-  .result{ min-height:28px; font-weight:700; letter-spacing:.3px; text-shadow:0 0 14px #0ff6; }
   .card-like{
     background: linear-gradient(180deg, #0a0c1a, #141832);
     border-radius:24px; padding:20px;
-    box-shadow: inset 0 0 0 1px #ffffff18, 0 10px 30px #0006, 0 0 60px #00ffff22;
+    box-shadow: inset 0 0 0 1px #ffffff18, 0 10px 30px #0006;
   }
-  
-  /* Input personalizado para número de ganadores */
-  #inpN {
-    text-align: center;
-    font-size: 1.3rem;
-    font-weight: 700;
-    padding: 0.6rem;
-    -moz-appearance: textfield; /* Firefox */
-  }
-  #inpN::-webkit-outer-spin-button,
-  #inpN::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-
+  #inpN { text-align: center; font-size: 1.3rem; font-weight: 700; }
 </style>
 </head>
 <body>
-  <div id="ruletaApp"
-      data-tabla="rifa_003"
-      data-digitos="5">
-  </div>
+
   <div class="page-wrap container">
     <h1>R U L E T A Z O<br>Kenworth AeroCab T660 (2015)</h1>
-    <p class="sub">Inicia la jugada y deja que el destino elija. Pausa o detén con inercia para ver el resultado.</p>
+    <p class="sub">Inicia la jugada y deja que el destino elija.</p>
 
     <div class="row g-4 align-items-start">
-      <!-- Columna RUEDA -->
       <div class="col-12 col-lg-6">
         <div class="panel">
           <div class="needle"></div>
           <div class="wheel" id="wheel">
-            <!-- Ticks SVG robustos -->
-            <svg class="ticks-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-              <defs>
-                <clipPath id="ringClip">
-                  <!-- anillo: radio 46 externo y 36 interno -->
-                  <path d="
-                    M 50 50
-                    m -46 0
-                    a 46 46 0 1 0 92 0
-                    a 46 46 0 1 0 -92 0
-                    M 50 50
-                    m -36 0
-                    a 36 36 0 1 1 72 0
-                    a 36 36 0 1 1 -72 0
-                    " fill-rule="evenodd"/>
-                </clipPath>
-                <filter id="tickGlow" x="-50%" y="-50%" width="200%" height="200%">
-                  <feDropShadow dx="0" dy="0" stdDeviation="0.8" flood-color="#000" flood-opacity="0.8"/>
-                  <feDropShadow dx="0" dy="0" stdDeviation="1.8" flood-color="#00FFFF" flood-opacity="0.6"/>
-                </filter>
-              </defs>
-              <g clip-path="url(#ringClip)" filter="url(#tickGlow)" id="tickGroup"></g>
-            </svg>
-            <div class="hub" id="hub">RESULTADO</div>
+            <div class="hub" id="hub">SORTEO</div>
           </div>
           <div class="burst" id="burst"></div>
         </div>
       </div>
 
-      <!-- Columna ACCIONES -->
       <div class="col-12 col-lg-6">
-        <div class="card-like h-100 d-flex flex-column justify-content-between">
-          <div class="mt-1">
-            <h3 class="mb-3 text-center">Generar Ganadores</h3>  
-            <div class="row g-2 align-items-center">
-              <div class="col-7 col-md-6">
-                <input type="number" min="1" value="1" class="form-control form-control-sm" id="inpN" placeholder="Cantidad de ganadores">
-              </div>
-              <div class="col-5 col-md-6 d-grid">
-                <button class="btn-neo start" id="btnSortear">Sortear ahora</button>
-              </div>
+        <div class="card-like h-100">
+          <h3 class="mb-3 text-center">Generar Ganadores</h3>  
+          <div class="row g-2 align-items-center">
+            <div class="col-7 col-md-6">
+              <input type="number" min="1" value="1" class="form-control" id="inpN">
             </div>
-
-            <div class="table-responsive mt-3" id="boxGanadores" style="display:none;">
-              <table class="table table-sm table-dark table-striped align-middle mb-0">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Boleto</th>
-                    <th>Nombre</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody id="tbGanadores"></tbody>
-              </table>
-              <div class="small text-white-50 mt-1" id="metaGanadores"></div>
+            <div class="col-5 col-md-6 d-grid">
+              <button class="btn-neo start" id="btnSortear">Sortear ahora</button>
             </div>
           </div>
 
+          <div class="table-responsive mt-3" id="boxGanadores" style="display:none;">
+            <table class="table table-sm table-dark table-striped align-middle">
+              <thead>
+                <tr><th>#</th><th>Boleto</th><th>Nombre</th><th></th></tr>
+              </thead>
+              <tbody id="tbGanadores"></tbody>
+            </table>
+            <div class="small text-white-50 mt-1" id="metaGanadores"></div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-<!-- Bootstrap JS (opcional para utilidades) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
 <script>
-// Lista de participantes
-const participantes = [
-  { boleto: 1, nombre_completo: "Juan Pérez", url: "#" },
-  { boleto: 2, nombre_completo: "María López", url: "#" },
-  { boleto: 3, nombre_completo: "Carlos García", url: "#" },
-  // Agrega más participantes aquí...
-];
-
-// Función de sonido
-let audioCtx;
-function blip(freq = 880, dur = 0.05, type = 'triangle') {
-  try {
-    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
-    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
-    o.type = type;
-    o.frequency.value = freq;
-    g.gain.value = 0.15;
-    o.connect(g);
-    g.connect(audioCtx.destination);
-    o.start();
-    setTimeout(() => o.stop(), dur * 1000);
-  } catch (_) {}
-}
-
-// Función para detener la ruleta en un índice específico
-let spinning = false, rot = 0, vel = 0, rafId = null, last = performance.now();
-function stopToIndex(idx, extraTurns = 2.5) {
-  return new Promise((resolve) => {
-    if (!spinning) return resolve();
-    paused = false;
-    const segWidth = 1 / 10;  // Suponiendo que son 10 segmentos
-    const segCenter = idx * segWidth + segWidth / 2;
-    const pointer = 0;
-    const fractional = rot - Math.floor(rot);
-    let delta = (pointer - fractional - segCenter);
-    delta = ((delta % 1) + 1) % 1;
-    const targetRot = Math.floor(rot) + fractional + delta + extraTurns;
-
-    const T = 2000 + Math.random() * 600;
-    wheel.style.transition = `transform ${T}ms cubic-bezier(.08,.9,.09,1.0)`;
-    rot = targetRot;
-    render();
-
-    setTimeout(() => {
-      spinning = false;
-      vel = 0;
-      rafId && cancelAnimationFrame(rafId);
-      rafId = null;
-      spawnBurst(36);
-      blip(520, .06, 'triangle');
-      setTimeout(() => blip(740, .06, 'triangle'), 80);
-      setTimeout(() => blip(980, .06, 'triangle'), 160);
-      resolve();
-    }, T + 50);
-  });
-}
-
 (() => {
-  /* ========= CONFIG ========= */
-  const SORTEO_URL = '/themes/theme_01/core/ruleta/sorteo_ganadores.php';  // <- cambia si tu endpoint está en otra ruta
-  const app = document.getElementById('ruletaApp');
-  const tabla = app?.dataset?.tabla || 'boletos';
-  const digitos = parseInt(app?.dataset?.digitos || '0', 10);
+  const participantes = [
+    { boleto: 1, nombre_completo: "Juan Pérez", url: "#" },
+    { boleto: 2, nombre_completo: "María López", url: "#" },
+    { boleto: 3, nombre_completo: "Carlos García", url: "#" },
+    { boleto: 4, nombre_completo: "Ana Torres", url: "#" },
+    { boleto: 5, nombre_completo: "Luis Rivas", url: "#" }
+  ];
 
-  // Formatea sólo si son dígitos puros; respeta strings que ya traen ceros
-  function formatearBoleto(b) {
-    let s = String(b).trim();
-    if (digitos > 0 && /^\d+$/.test(s)) {
-      s = s.padStart(digitos, '0');
-    }
-    return s;
-  }
-
-  /* ========= DOM base (ruleta) ========= */
   const wheel = document.getElementById('wheel');
   const hub = document.getElementById('hub');
-  const burst = document.getElementById('burst');
-
-  /* ========= DOM sorteo (UI derecha) ========= */
   const btnSortear = document.getElementById('btnSortear');
   const inpN = document.getElementById('inpN');
-  const box = document.getElementById('boxGanadores');
   const tb = document.getElementById('tbGanadores');
-  const meta = document.getElementById('metaGanadores');
+  const box = document.getElementById('boxGanadores');
+  const burst = document.getElementById('burst');
 
-  /* ========= Lógica de “Sortear ahora” con animación sincronizada ========= */
-  async function sortear() {
-    const n = parseInt(inpN.value, 10);
-    if (!Number.isInteger(n) || n < 1) {
-      alert('Especifica un número válido de ganadores.');
-      return;
-    }
+  let spinning = false;
+  let rot = 0;
+  let audioCtx;
 
-    btnSortear.disabled = true;
-    const oldTxt = btnSortear.textContent;
-    btnSortear.textContent = 'Sorteando…';
-    hub.textContent = "Girando..."; // Feedback visual en el centro
-
+  function blip(freq = 880, dur = 0.05) {
     try {
-      // 1. Iniciamos el giro visual de inmediato
-      startSpin();
-
-      // 2. Ejecutamos el sorteo
-      const ganadores = [];
-
-      // Asignamos un boleto específico manualmente como ganador
-      const boletoGanador = 3; // Cambia este número al boleto que deseas que gane
-
-      // Buscamos al participante con ese boleto
-      const ganadorManual = participantes.find(p => p.boleto === boletoGanador);
-
-      // Si el participante con ese boleto existe, lo agregamos a los ganadores
-      if (ganadorManual) {
-        ganadores.push(ganadorManual);
-      }
-
-      // Seleccionamos los demás ganadores de manera aleatoria
-      while (ganadores.length < n) {
-        const idx = Math.floor(Math.random() * participantes.length);
-        if (!ganadores.includes(participantes[idx])) {
-          ganadores.push(participantes[idx]);
-        }
-      }
-
-      // 3. Ya tenemos los datos y pasó el tiempo mínimo. Calculamos el frenado.
-      const forcedIdx = Math.floor(Math.random() * 10); // Suponiendo que son 10 segmentos
-      const extraTurns = 2 + Math.random();
-      
-      await stopToIndex(forcedIdx, extraTurns);
-
-      // 4. AHORA mostramos los resultados en la interfaz
-      hub.textContent = "Felicidades";
-      tb.innerHTML = '';
-      ganadores.forEach((g, i) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${i+1}</td>
-          <td><strong>${formatearBoleto(g.boleto)}</strong></td>
-          <td>${g.nombre_completo}</td>
-          <td><a href="${g.url}" target="_blank" class="btn btn-sm btn-primary">Ver</a></td>
-        `;
-        tb.appendChild(tr);
-      });
-      
-      meta.textContent = `Participantes: ${participantes.length} · Total ganadores: ${ganadores.length}`;
-      box.style.display = 'block';
-
-    } catch (e) {
-      alert('No se pudo realizar el sorteo: ' + e.message);
-      spinning = false; // Detener en caso de error
-    } finally {
-      btnSortear.disabled = false;
-      btnSortear.textContent = oldTxt;
-    }
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.frequency.value = freq;
+      g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(); o.stop(audioCtx.currentTime + dur);
+    } catch (e) {}
   }
 
-  /* ========= Motor de giro ========= */
-  function render(){
-    wheel.style.transition='transform .06s linear';
-    wheel.style.setProperty('--rot', rot+'turn');
-  }
-
-  function step(now){
-    const dt=(now-last)/1000; last=now;
-    if(spinning){
-      const target=1.7, accel=2.0;
-      vel += (target-vel)*Math.min(1, accel*dt);
-      rot += vel*dt;
-    }
-    render(); rafId=requestAnimationFrame(step);
-  }
-
-  function startSpin(){
-    if(!spinning){
-      spinning=true;
-      last=performance.now();
-      rafId=requestAnimationFrame(step);
-    }
-  }
-
-  /* ========= Partículas ========= */
   function spawnBurst(n=24){
     for(let i=0;i<n;i++){
       const s=document.createElement('div'); s.className='spark';
-      const x0=(wheel.clientWidth/2)+(Math.random()*40-20);
-      const y0=(wheel.clientHeight/2)+(Math.random()*40-20);
-      const a=Math.random()*Math.PI*2; const d=160+Math.random()*240;
-      const x1=x0+Math.cos(a)*d, y1=y0+Math.sin(a)*d;
+      const x0 = wheel.clientWidth / 2;
+      const y0 = wheel.clientHeight / 2;
+      const a = Math.random() * Math.PI * 2;
+      const d = 100 + Math.random() * 150;
+      const x1 = x0 + Math.cos(a) * d;
+      const y1 = y0 + Math.sin(a) * d;
       s.style.setProperty('--x0',`${x0}px`); s.style.setProperty('--y0',`${y0}px`);
       s.style.setProperty('--x1',`${x1}px`); s.style.setProperty('--y1',`${y1}px`);
-      const t=700+Math.random()*400; s.style.animation=`fly ${t}ms ease-out forwards`;
-      burst.appendChild(s); setTimeout(()=>s.remove(), t+20);
+      s.style.animation = `fly ${700 + Math.random()*400}ms ease-out forwards`;
+      burst.appendChild(s); setTimeout(()=>s.remove(), 1200);
     }
   }
 
-  /* ========= Botones existentes ========= */  
-  btnSortear?.addEventListener('click', sortear);
+  async function sortear() {
+    const n = parseInt(inpN.value, 10);
+    if (isNaN(n) || n < 1) return alert('Número no válido');
 
-  // Efecto inicial visual
-  setTimeout(()=>spawnBurst(16), 600);
+    btnSortear.disabled = true;
+    box.style.display = 'none';
+    hub.textContent = "Girando...";
+    spinning = true;
+
+    // 1. Fase de aceleración (giro infinito visual)
+    wheel.style.transition = "transform 3s cubic-bezier(0.1, 0, 0.3, 1)";
+    rot += 10 + Math.random() * 5; // Unas cuantas vueltas iniciales
+    wheel.style.transform = `rotate(${rot}turn)`;
+
+    // 2. Simulamos la espera de datos
+    await new Promise(r => setTimeout(r, 2000));
+
+    // 3. Lógica de ganadores
+    const ganadores = [];
+    const pool = [...participantes];
+    for(let i=0; i<n && pool.length > 0; i++) {
+        const idx = Math.floor(Math.random() * pool.length);
+        ganadores.push(pool.splice(idx, 1)[0]);
+    }
+
+    // 4. Frenado controlado
+    // Calculamos para que el "segmento" caiga cerca de la aguja
+    const extraTurns = 3 + Math.random() * 2;
+    rot += extraTurns; 
+    wheel.style.transition = "transform 4s cubic-bezier(0.15, 0, 0.15, 1)";
+    wheel.style.transform = `rotate(${rot}turn)`;
+
+    setTimeout(() => {
+      spinning = false;
+      hub.textContent = "¡LISTO!";
+      spawnBurst(30);
+      blip(600, 0.2);
+
+      // Llenar tabla
+      tb.innerHTML = ganadores.map((g, i) => `
+        <tr>
+          <td>${i+1}</td>
+          <td><strong>${String(g.boleto).padStart(5, '0')}</strong></td>
+          <td>${g.nombre_completo}</td>
+          <td><a href="${g.url}" class="btn btn-sm btn-primary">Ver</a></td>
+        </tr>
+      `).join('');
+      
+      box.style.display = 'block';
+      btnSortear.disabled = false;
+    }, 4000);
+  }
+
+  btnSortear.addEventListener('click', sortear);
 })();
 </script>
-
 </body>
 </html>
