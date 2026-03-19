@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Ruletazo — Estilo Visual Exacto (Bootstrap)</title>
+<title>Ruletazo — Diseño Estricto y Manual Arreglado</title>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
@@ -12,9 +12,8 @@
     --bg-1: #0f1020;
     --bg-2: #1a1c3a;
     --glow: #66f4ff;
-    --accent: #ff5f9a; /* Color de la aguja */
-    --wheel-segment-count: 10; /* Número de segmentos */
-    --tick-thickness: 16px; /* Grosor de los ticks blancos */
+    --accent: #ff5f9a; /* Color de la aguja neón */
+    --wheel-segment-count: 10;
   }
 
   * { box-sizing: border-box; }
@@ -65,13 +64,13 @@
     box-shadow: inset 0 0 0 1px #ffffff18, 0 30px 60px #0008, 0 0 120px #0ff2;
     display: grid;
     place-items: center;
-    overflow: hidden; /* Para que los ticks no salgan */
+    overflow: hidden;
   }
 
-  /* Aguja (indicador de ganador) */
+  /* Aguja neón rosa (indicador de ganador) */
   .needle {
     position: absolute;
-    top: 0; /* Un poco más arriba para que la punta toque el borde */
+    top: 5px; /* Ligeramente más abajo */
     left: 50%;
     transform: translateX(-50%);
     width: 0;
@@ -80,59 +79,34 @@
     border-right: 14px solid transparent;
     border-top: 26px solid var(--accent);
     filter: drop-shadow(0 0 8px #ff5f9a88) drop-shadow(0 0 18px #ff5f9acc);
-    z-index: 10; /* Por encima de todo */
+    z-index: 10;
   }
 
-  /* Rueda principal (la parte que gira) */
-  .wheel {
+  /* Rueda principal SVG (la parte que gira) - DISEÑO ESTRICTO */
+  .wheel-wrapper {
     width: 100%;
     height: 100%;
-    border-radius: 50%;
     position: relative;
-    display: grid;
-    place-items: center;
-    /* Colores y gradientes de los segmentos EXACTOS a la imagen */
-    background: conic-gradient(from 0turn,
-        #20e3b2 0 10%, #2b82ff 10% 20%, #ff6f91 20% 30%, #ffd166 30% 40%,
-        #6ba4ff 40% 50%, #7cffcb 50% 60%, #ff9a8b 60% 70%, #ffe29a 70% 80%,
-        #a18cd1 80% 90%, #fbc2eb 90% 100%);
+    border-radius: 50%;
     box-shadow: inset 0 0 0 10px #0008, inset 0 0 0 2px #fff4, 0 0 0 12px #00ffff18;
     overflow: hidden;
     /* Transición por defecto suave (se cambiará dinámicamente) */
     transition: transform 1s ease-out;
   }
 
-  /* Motor de Ticks Blancos (los radios de la rueda) */
-  .wheel-ticks {
-    position: absolute;
-    inset: 0;
+  .wheel-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
     border-radius: 50%;
-    overflow: hidden;
-    z-index: 1; /* Por debajo del hub */
   }
 
-  .wheel-ticks::after {
-    content: '';
-    position: absolute;
-    inset: -10%; /* Sobresale un poco */
-    background: conic-gradient(
-        from 0turn,
-        /* Ciclo de ticks blancos gruesos (2 por segmento, 10 segmentos = 20 ticks) */
-        transparent 0, transparent 2.5%,
-        #fff 2.5%, #fff calc(2.5% + var(--tick-thickness) / 360 * 100),
-        transparent calc(2.5% + var(--tick-thickness) / 360 * 100), transparent 5%,
-        
-        #fff 5%, #fff calc(5% + var(--tick-thickness) / 360 * 100),
-        transparent calc(5% + var(--tick-thickness) / 360 * 100), transparent 7.5%,
-
-        /* ... y así sucesivamente para 20 ticks ... 
-           Esta es una forma programática de crear ticks gruesos y uniformes */
-        #fff 0, #fff 0 /* Placeholder para el bucle en JS */
-    );
+  /* Efecto de brillo de los radios blancos (glow neón) */
+  .wheel-svg .tick {
     filter: drop-shadow(0 0 4px #ffffffff);
   }
 
-  /* Hub central (el círculo con texto) */
+  /* Hub central (el círculo neón con texto) */
   .hub {
     width: 26%;
     aspect-ratio: 1/1;
@@ -199,9 +173,10 @@
       <div class="col-12 col-lg-6">
         <div class="panel">
           <div class="needle"></div>
-          <div class="wheel" id="wheel">
-            <div class="wheel-ticks" id="wheelTicks"></div>
-            <div class="hub" id="hub">SORTEO</div>
+          <div class="wheel-wrapper" id="wheelWrapper">
+            <svg class="wheel-svg" id="wheelSvg" viewBox="0 0 100 100">
+                </svg>
+            <div class="hub" id="hub">FELICIDADES</div>
           </div>
           <div class="burst" id="burst"></div>
         </div>
@@ -243,17 +218,19 @@
 <script>
 (() => {
   /* =========================================================================
-     CONFIGURACIÓN DE GANADOR MANUAL (Restaurado del código original)
+     CONFIGURACIÓN DE GANADOR MANUAL (ARREGLADO)
      ========================================================================= */
   // Si estableces este número, este boleto SIEMPRE será el primer ganador.
   // Déjalo en `null` para un sorteo 100% aleatorio.
+  // En tu ejemplo: BOLETO GANADOR MANUAL = 3
   const BOLETO_GANADOR_FORZADO = 00101; 
 
   // Datos de ejemplo para el sorteo (puedes reemplazarlos con tu lógica de DB)
+  // IMPORTANTE: Asegúrate de que los boletos sean números o strings válidos.
   const participantes = [
     { boleto: 00101, nombre_completo: "	Alexis Valentín García González", url: "https://www.rifasyumai.com/c0236-boleto" },
     { boleto: 2, nombre_completo: "María López", url: "#" },
-    { boleto: 3, nombre_completo: "Carlos García", url: "#" },
+    { boleto: 3, nombre_completo: "Carlos García (MANUAL)", url: "#" },
     { boleto: 4, nombre_completo: "Ana Torres", url: "#" },
     { boleto: 5, nombre_completo: "Luis Rivas", url: "#" },
     { boleto: 6, nombre_completo: "Sofía Hernández", url: "#" },
@@ -263,20 +240,20 @@
 
   /* ========================================================================= */
 
-  const wheel = document.getElementById('wheel');
+  const wheelWrapper = document.getElementById('wheelWrapper');
+  const wheelSvg = document.getElementById('wheelSvg');
   const hub = document.getElementById('hub');
   const btnSortear = document.getElementById('btnSortear');
   const inpN = document.getElementById('inpN');
   const tb = document.getElementById('tbGanadores');
   const box = document.getElementById('boxGanadores');
   const burst = document.getElementById('burst');
-  const wheelTicks = document.getElementById('wheelTicks');
 
   let spinning = false;
   let rot = 0; // Rotación acumulada en "turnos"
   let audioCtx;
 
-  // Formateador de boleto con ceros a la izquierda
+  // Formateador de boleto con ceros a la izquierda (Aseguramos que sea string)
   function formatearBoleto(b) {
     return String(b).padStart(5, '0');
   }
@@ -297,8 +274,8 @@
   function spawnBurst(n=24){
     for(let i=0;i<n;i++){
       const s=document.createElement('div'); s.className='spark';
-      const x0 = wheel.clientWidth / 2;
-      const y0 = wheel.clientHeight / 2;
+      const x0 = wheelWrapper.clientWidth / 2;
+      const y0 = wheelWrapper.clientHeight / 2;
       const a = Math.random() * Math.PI * 2;
       const d = 100 + Math.random() * 150;
       const x1 = x0 + Math.cos(a) * d;
@@ -310,35 +287,81 @@
     }
   }
 
-  /* ========= Motor Visual de la Ruleta (Estilo de la imagen) ========= */
-  // Esta función crea los 20 ticks blancos gruesos dinámicamente
-  // para que sean uniformes y exactos a la imagen.
-  function drawWheelTicks() {
-    const tickThickness = 12; // En grados
+  /* ========= Motor Visual SVG (DISEÑO ESTRICTO de la imagen) ========= */
+  // Esta función genera los segmentos pastel y los radios blancos uniformes.
+  function drawStrictWheel() {
     const segmentCount = 10;
-    let conicG = 'from 0turn, ';
-    const totalTicks = segmentCount * 2;
+    const ticksPerSegment = 2;
+    const totalTicks = segmentCount * ticksPerSegment;
     const degreePerTick = 360 / totalTicks;
+    const degreePerSegment = 360 / segmentCount;
+    const tickThicknessDegree = 16; // Grosor de los radios blancos uniforme
 
-    for (let i = 0; i < totalTicks; i++) {
-        const startDeg = i * degreePerTick + (degreePerTick - tickThickness) / 2;
-        const endDeg = startDeg + tickThickness;
-        conicG += `transparent 0deg, transparent ${startDeg}deg, #fff ${startDeg}deg, #fff ${endDeg}deg, transparent ${endDeg}deg, transparent ${degreePerTick * (i+1)}deg`;
-        if (i < totalTicks - 1) conicG += ', ';
+    // Colores EXACTOS y pastel de la imagen
+    const colors = [
+        '#2b82ff', // Azul fuerte (arriba)
+        '#ff6f91', // Rosa fuerte
+        '#ffd166', // Amarillo
+        '#6ba4ff', // Azul claro
+        '#7cffcb', // Verde aqua
+        '#ff9a8b', // Naranja/Coral
+        '#ffe29a', // Amarillo claro
+        '#a18cd1', // Morado
+        '#fbc2eb', // Rosa claro
+        '#20e3b2'  // Verde fuerte
+    ];
+
+    // Limpiar SVG
+    wheelSvg.innerHTML = '';
+
+    // 1. Dibujar Segmentos Pastel
+    for (let i = 0; i < segmentCount; i++) {
+        const startDeg = i * degreePerSegment;
+        const endDeg = startDeg + degreePerSegment;
+        
+        // Crear segmento con gradiente cónico para efecto de neón
+        const segment = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        const x1 = 50 + 50 * Math.cos((startDeg - 90) * Math.PI / 180);
+        const y1 = 50 + 50 * Math.sin((startDeg - 90) * Math.PI / 180);
+        const x2 = 50 + 50 * Math.cos((endDeg - 90) * Math.PI / 180);
+        const y2 = 50 + 50 * Math.sin((endDeg - 90) * Math.PI / 180);
+        
+        segment.setAttribute("d", `M50,50 L${x1},${y1} A50,50 0 0,1 ${x2},${y2} Z`);
+        
+        // Efecto neón: Gradiente radial del segmento al hub
+        segment.setAttribute("fill", colors[i]);
+        segment.setAttribute("stroke", colors[i]); // Para evitar bordes finos
+        segment.setAttribute("stroke-width", "0.2");
+        
+        wheelSvg.appendChild(segment);
     }
-    
-    // Aplicar el gradiente creado
-    const style = document.createElement('style');
-    style.innerHTML = `
-      #wheelTicks::after {
-        background: conic-gradient(${conicG}) !important;
-      }
-    `;
-    document.head.appendChild(style);
-  }
-  drawWheelTicks(); // Ejecutar al cargar
 
-  /* ========= Lógica del Sorteo ========= */
+    // 2. Dibujar Radios Blancos Uniformes (los "ticks" neón)
+    for (let i = 0; i < totalTicks; i++) {
+        const centerDeg = (i * degreePerTick) - 90; // El -90 es para que el primero esté arriba
+        const tick = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        const x1 = 50 + (26/2) * Math.cos(centerDeg * Math.PI / 180); // Desde el borde del hub
+        const y1 = 50 + (26/2) * Math.sin(centerDeg * Math.PI / 180);
+        const x2 = 50 + 50 * Math.cos(centerDeg * Math.PI / 180); // Hasta el borde
+        const y2 = 50 + 50 * Math.sin(centerDeg * Math.PI / 180);
+        
+        tick.setAttribute("x1", x1);
+        tick.setAttribute("y1", y1);
+        tick.setAttribute("x2", x2);
+        tick.setAttribute("y2", y2);
+        tick.setAttribute("class", "tick");
+        tick.setAttribute("stroke", "#fff");
+        tick.setAttribute("stroke-width", "2.5"); // Grosor grueso de la imagen
+        tick.setAttribute("stroke-linecap", "round");
+        
+        wheelSvg.appendChild(tick);
+    }
+  }
+  
+  // Ejecutar el motor visual al cargar
+  drawStrictWheel();
+
+  /* ========= Lógica del Sorteo (Arreglado Manual) ========= */
   async function sortear() {
     const n = parseInt(inpN.value, 10);
     if (isNaN(n) || n < 1) return alert('Especifica un número válido de ganadores.');
@@ -349,55 +372,61 @@
     spinning = true;
 
     // 1. Fase de aceleración (Giro infinito visual rápido)
-    // Usamos una transición lineal y rápida para la fase de "misterio"
-    wheel.style.transition = "transform 3.5s cubic-bezier(0.1, 0, 0.3, 1)";
-    // Aseguramos que de muchas vueltas
+    wheelWrapper.style.transition = "transform 3.5s cubic-bezier(0.1, 0, 0.3, 1)";
     const fase1Vueltas = 12 + Math.random() * 8; 
     rot += fase1Vueltas;
-    wheel.style.transform = `rotate(${rot}turn)`;
+    wheelWrapper.style.transform = `rotate(${rot}turn)`;
 
     // 2. Simulamos la espera de datos (ej. llamada a base de datos)
-    // Esta pausa es necesaria para que el usuario crea que se está calculando
     await new Promise(r => setTimeout(r, 2500)); // Esperar 2.5 segundos
 
-    /* 3. Lógica de ganadores y frenado controlado */
+    /* 3. Lógica de ganadores y frenado controlado (ARREGLADO) */
     const ganadores = [];
     let pool = [...participantes];
 
-    // --- Parte Manual/Forzada (Restaurado) ---
+    // --- CORRECCIÓN: Ganador Manual/Forzado ---
     if (BOLETO_GANADOR_FORZADO !== null) {
-        const manualWinner = pool.find(p => p.boleto === BOLETO_GANADOR_FORZADO);
-        if (manualWinner) {
+        // Encontramos AL PARTICIPANTE EXACTO que tiene el boleto forzado
+        const manualWinnerIdx = pool.findIndex(p => p.boleto === BOLETO_GANADOR_FORZADO);
+        
+        if (manualWinnerIdx !== -1) {
+            // Extraemos al participante del pool para que no se repita
+            const manualWinner = pool.splice(manualWinnerIdx, 1)[0];
+            
+            // Lo añadimos como el primer ganador
             ganadores.push(manualWinner);
-            // Quitarlo del pool para no seleccionarlo de nuevo
-            pool = pool.filter(p => p.boleto !== BOLETO_GANADOR_FORZADO);
+            
+            console.log(`Ganador manual forzado: ${manualWinner.nombre_completo} (Boleto: ${manualWinner.boleto})`);
+        } else {
+            console.error(`ERROR: No se encontró un participante con el boleto manual forzado: ${BOLETO_GANADOR_FORZADO}`);
         }
     }
 
     // --- Parte Aleatoria para los ganadores restantes ---
     while (ganadores.length < n && pool.length > 0) {
         const idx = Math.floor(Math.random() * pool.length);
-        ganadores.push(pool.splice(idx, 1)[0]);
+        const aleatorioWinner = pool.splice(idx, 1)[0];
+        ganadores.push(aleatorioWinner);
     }
 
     /* 4. Calcular frenado controlled y el segmento ganador visual */
     const segmentCount = 10;
-    // Calculamos en qué segmento cae el primer ganador (el forzado o el primer aleatorio)
-    // Esto es puramente visual, la ruleta no se detiene "en el boleto", sino en un
-    // segmento visual aleatorio para el primer ganador, y los demás se listan.
     
-    // Para que sea 100% exacto visualmente, tendríamos que mapear boletos a segmentos,
-    // lo cual es complejo si los boletos no están secuenciales o son muchos.
+    // Para el efecto visual de "detenerse en el ganador", mapeamos el primer boleto listado a un segmento.
+    const firstWinnerBoleto = ganadores[0]?.boleto;
     
-    // Lo más sencillo y efectivo es detener la ruleta en un segmento visual aleatorio
-    // que represente al "ganador principal" y luego listar a todos los ganadores.
+    // Si no hay boletos, detenemos en un segmento aleatorio
+    let winningSegmentVisualIdx = Math.floor(Math.random() * segmentCount);
     
-    // Elegimos un segmento ganador visual aleatorio para el primer ganador listado
-    const winningSegmentVisualIdx = Math.floor(Math.random() * segmentCount);
+    if (firstWinnerBoleto) {
+        // Mapear el boleto a un segmento visual. El % asegura que caiga en uno de los 10.
+        winningSegmentVisualIdx = firstWinnerBoleto % segmentCount;
+    }
     
     // Calcular el ángulo exacto para detenerse en el centro del segmento elegido
     const degreesPerSegment = 360 / segmentCount;
     // El 90 es para que el segmento esté en la parte superior (aguja)
+    // El -0.5 es para centrarlo en el segmento
     const targetDegrees = (90 - winningSegmentVisualIdx * degreesPerSegment - degreesPerSegment / 2 + 360) % 360;
     
     // Añadir vueltas extra para el efecto de frenado lento
@@ -406,14 +435,13 @@
     rot += extraTurnsFrenado + (targetDegrees / 360);
     
     // 5. Aplicar la transición de frenado controlado
-    // Esta es la parte clave: curva muy suave y larga
-    wheel.style.transition = "transform 4.5s cubic-bezier(0.15, 0, 0.15, 1)";
-    wheel.style.transform = `rotate(${rot}turn)`;
+    wheelWrapper.style.transition = "transform 4.5s cubic-bezier(0.15, 0, 0.15, 1)";
+    wheelWrapper.style.transform = `rotate(${rot}turn)`;
 
     // 6. Esperar a que la transición visual termine para mostrar resultados
     setTimeout(() => {
       spinning = false;
-      hub.textContent = "Felicidades";
+      hub.textContent = "¡LISTO!";
       spawnBurst(30);
       blip(600, 0.2);
 
