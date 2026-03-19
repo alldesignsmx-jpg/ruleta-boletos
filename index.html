@@ -3,170 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ruleta de Boletos</title>
+    <title>Ruletazo Kenworth Aerocab T660 (2015)</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
+            background-color: #171836;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
             text-align: center;
-            background-color: #1e1e2f;
-            color: white;
-            padding: 50px;
         }
 
         h1 {
-            font-size: 36px;
-            margin-bottom: 20px;
+            font-size: 2.5em;
+            margin-bottom: 40px;
+            color: #6b6ce5;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: bold;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
         }
 
-        #ruleta-container {
+        .ruleta-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .ruleta-wheel {
+            width: 380px;
+            height: 380px;
+            border-radius: 50%;
             position: relative;
-            width: 400px;
-            height: 400px;
-            margin: 0 auto;
-            border-radius: 50%;
-            border: 8px solid #000;
-            background: #fff;
-            color: #000;
+            background: conic-gradient(from 90deg, #b2ff8d, #ffff6b, #ffbb00, #ff7500, #ff4bff, #00d8ff, #00ffbc, #ff0000);
+            border: 8px solid #4b4b6d;
+            box-shadow: 0px 0px 20px rgba(255, 255, 255, 0.3);
+            transition: transform 5s ease-out;
         }
 
-        .boletos {
+        .result {
             position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            transform-origin: center;
-        }
-
-        .boletos div {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            text-align: center;
-            line-height: 1.5;
-            font-size: 16px;
-            font-weight: bold;
-            transform-origin: 50% 100%;
-            color: white;
-        }
-
-        #boton {
-            background-color: #4CAF50;
-            color: white;
-            padding: 15px 30px;
-            font-size: 18px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        #boton:hover {
-            background-color: #45a049;
-        }
-
-        #resultado {
-            margin-top: 20px;
             font-size: 24px;
-            color: #FF5733;
             font-weight: bold;
+            color: white;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            text-shadow: 0px 0px 10px rgba(0, 0, 0, 0.7);
         }
 
-        #input-boletos {
-            width: 80%;
-            margin: 20px auto;
-            padding: 10px;
-            font-size: 16px;
-            color: #333;
-        }
-
-        #boletos-lista {
-            font-size: 16px;
+        .controls {
+            display: flex;
+            justify-content: center;
             margin-top: 20px;
         }
 
-        #boletos-lista textarea {
-            width: 80%;
-            height: 100px;
-            padding: 10px;
-            font-size: 16px;
-            margin-top: 10px;
+        .controls input {
+            font-size: 18px;
+            padding: 12px;
+            width: 60px;
+            text-align: center;
+            margin-right: 10px;
+            border-radius: 8px;
+            border: 2px solid #00bfae;
         }
+
+        .controls button {
+            font-size: 18px;
+            padding: 12px 25px;
+            background-color: #00bfae;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.3s ease;
+        }
+
+        .controls button:hover {
+            background-color: #00a68c;
+        }
+
+        .footer {
+            color: #b3b3b3;
+            font-size: 14px;
+            margin-top: 30px;
+        }
+
     </style>
 </head>
 <body>
-    <h1>Ruleta de Boletos</h1>
 
-    <div id="ruleta-container">
-        <div id="boletos" class="boletos">
-            <!-- Aquí se agregarán los segmentos de boletos -->
+    <h1>Ruletazo Kenworth Aerocab T660 (2015)</h1>
+    <div class="ruleta-container">
+        <div id="ruleta" class="ruleta-wheel">
+            <div class="result">RESULTADO</div>
         </div>
     </div>
 
-    <br>
-    <input type="text" id="input-boletos" placeholder="Ingresa los boletos (separados por comas)" />
+    <div class="controls">
+        <input type="number" id="numGanadores" placeholder="1" min="1">
+        <button id="btnSortear" onclick="iniciarSorteo()">Sortear ahora</button>
+    </div>
 
-    <br>
-    <button id="boton">¡Girar la Ruleta!</button>
-    <div id="resultado"></div>
-
-    <div id="boletos-lista">
-        <h3>Lista de boletos:</h3>
-        <textarea id="boletos-textarea" readonly></textarea>
+    <div class="footer">
+        Inicia la jugada y deja que el destino elija. Pausa o detén con inercia para ver el resultado.
     </div>
 
     <script>
-        let boletos_vendidos = [];
+        function iniciarSorteo() {
+            const ruleta = document.getElementById('ruleta');
+            const numGanadores = document.getElementById('numGanadores').value || 1;
 
-        // Número específico de boleto que deseas como ganador (por ejemplo, "003")
-        const boleto_especifico = "003";  // Cambia "003" por el número de boleto que quieras que gane
+            // Generar número aleatorio para el resultado
+            const resultado = Math.floor(Math.random() * 100);
 
-        // Función para agregar los boletos a la ruleta
-        function agregarBoletos() {
-            const boletosTexto = document.getElementById("input-boletos").value;
-            boletos_vendidos = boletosTexto.split(",").map(boleto => boleto.trim());
+            // Calcular un valor de rotación aleatorio
+            const deg = (Math.random() * 360) + 720;
 
-            // Mostrar los boletos en el área de lista
-            document.getElementById("boletos-textarea").value = boletos_vendidos.join("\n");
+            // Animación de la ruleta
+            ruleta.style.transition = 'transform 5s ease-out';
+            ruleta.style.transform = `rotate(${deg}deg)`;
 
-            // Crear los segmentos en la ruleta
-            const boletosDiv = document.getElementById("boletos");
-            boletosDiv.innerHTML = '';  // Limpiar la ruleta antes de agregar nuevos boletos
-            const angleStep = 360 / boletos_vendidos.length;
-
-            boletos_vendidos.forEach((boleto, index) => {
-                const angle = angleStep * index;
-                const div = document.createElement('div');
-                div.style.transform = `rotate(${angle}deg)`;
-                div.innerHTML = boleto;
-                boletosDiv.appendChild(div);
-            });
+            // Mostrar el resultado después de la animación
+            setTimeout(() => {
+                document.querySelector('.result').textContent = `Ganador: ${resultado}`;
+            }, 5000);
         }
-
-        // Función para girar la ruleta al hacer clic en el botón
-        document.getElementById("boton").addEventListener("click", function() {
-            if (boletos_vendidos.length === 0) {
-                alert("Por favor, ingresa los boletos.");
-                return;
-            }
-
-            // Buscar el boleto específico en la lista
-            const boleto_ganador = boletos_vendidos.find(boleto => boleto === boleto_especifico);
-
-            if (boleto_ganador) {
-                document.getElementById("resultado").textContent = `¡El boleto ganador es: ${boleto_ganador}!`;
-            } else {
-                document.getElementById("resultado").textContent = `El boleto ${boleto_especifico} no está en la lista.`;
-            }
-
-            // Girar la ruleta (agregar animación)
-            const ruleta = document.getElementById("boletos");
-            const girar = 360 * 5 + Math.random() * 360;  // Girar varias veces más un giro extra aleatorio
-            ruleta.style.transition = "transform 4s ease-out";
-            ruleta.style.transform = `rotate(${girar}deg)`;
-        });
-
-        // Llamar a agregarBoletos cuando se ingrese un boleto
-        document.getElementById("input-boletos").addEventListener("input", agregarBoletos);
     </script>
+
 </body>
 </html>
