@@ -3,173 +3,246 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ruletazo - Kenworth Aerocab T660</title>
+  <title>Ruletazo - Kenworth</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    :root {
-      --bg-dark: #0f1020;
-      --pink-neon: #ff5f9a;
-      --cyan-neon: #00ffff;
-    }
-
+    /* Estética General */
     body {
-      background-color: var(--bg-dark);
+      background-color: #0b0d1b;
       color: white;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      min-height: 100vh;
+      font-family: 'Segoe UI', sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      padding-top: 50px;
       margin: 0;
     }
 
-    /* Títulos Neón */
-    .header-section { text-align: center; margin-bottom: 30px; }
-    .title-main { color: #a18cd1; font-weight: 900; letter-spacing: 5px; text-transform: uppercase; margin: 0; }
-    .title-sub { color: var(--pink-neon); font-weight: 800; text-shadow: 0 0 15px var(--pink-neon); font-size: 2rem; }
-    .description { color: #ccc; font-size: 0.9rem; margin-top: 5px; }
+    /* Títulos con efecto Neón */
+    .header { text-align: center; margin-bottom: 40px; }
+    .header h4 { color: #9c88ff; letter-spacing: 4px; font-weight: 700; margin-bottom: 5px; }
+    .header h2 { color: #ff5f9a; font-weight: 800; text-shadow: 0 0 20px rgba(255,95,154,0.6); font-size: 2.2rem; }
+    .header p { color: #7f8fa6; font-size: 0.9rem; max-width: 600px; }
 
-    /* Layout */
-    .main-container {
+    .main-wrapper {
       display: flex;
-      gap: 50px;
       align-items: flex-start;
-      justify-content: center;
-      flex-wrap: wrap;
+      gap: 30px;
+      max-width: 1200px;
     }
 
-    /* La Ruleta */
+    /* Contenedor de la Ruleta */
+    .panel-container {
+      background: #060714;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 0 50px rgba(0,0,0,0.5);
+      position: relative;
+    }
+
     .panel {
       position: relative;
-      width: 500px;
-      height: 500px;
-      background: #0a0c1a;
-      border-radius: 20px; /* Bordes rectos con ligera curva como la imagen */
-      padding: 20px;
+      width: 480px;
+      height: 480px;
       display: flex;
       justify-content: center;
       align-items: center;
     }
 
     .needle {
-      position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
-      width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent;
-      border-top: 25px solid var(--pink-neon); z-index: 100; filter: drop-shadow(0 0 8px var(--pink-neon));
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0; height: 0;
+      border-left: 14px solid transparent;
+      border-right: 14px solid transparent;
+      border-top: 28px solid #ff5f9a;
+      z-index: 100;
+      filter: drop-shadow(0 0 10px #ff5f9a);
     }
 
+    /* Colores exactos de la imagen */
     .wheel {
-      position: relative; width: 100%; height: 100%; border-radius: 50%;
-      overflow: hidden; transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1);
+      position: relative;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      overflow: hidden;
+      transition: transform 5s cubic-bezier(0.1, 0, 0.1, 1);
       background: conic-gradient(
-        #2b82ff 0% 10%, #ff6f91 10% 20%, #ffd166 20% 30%, #6ba4ff 30% 40%, #7cffcb 40% 50%,
-        #ff9a8b 50% 60%, #ffe29a 60% 70%, #a18cd1 70% 80%, #fbc2eb 80% 90%, #20e3b2 90% 100%
+        #2472ff 0deg 36deg,   /* Azul */
+        #ff6994 36deg 72deg,  /* Rosa */
+        #ffcc5c 72deg 108deg, /* Amarillo/Naranja */
+        #6197ff 108deg 144deg, /* Azul claro */
+        #67ebba 144deg 180deg, /* Verde menta */
+        #ff9478 180deg 216deg, /* Coral */
+        #ffdf8c 216deg 252deg, /* Crema */
+        #9d88ff 252deg 288deg, /* Morado */
+        #f8b4e3 288deg 324deg, /* Rosa pastel */
+        #1edba3 324deg 360deg  /* Verde esmeralda */
       );
     }
 
-    .ticks-svg { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none; }
+    .ticks-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 10;
+      pointer-events: none;
+    }
 
     .hub {
-      position: absolute; width: 120px; height: 120px; border-radius: 50%; z-index: 10;
-      background: radial-gradient(circle, #fff, var(--cyan-neon) 60%, #0047ff 100%);
-      display: flex; justify-content: center; align-items: center; font-weight: 900;
-      color: #000; text-transform: uppercase; font-size: 0.75rem; text-align: center;
-      box-shadow: 0 0 30px var(--cyan-neon);
+      position: absolute;
+      width: 125px;
+      height: 125px;
+      background: radial-gradient(circle, #fff, #4de6ff 50%, #004cff 100%);
+      border-radius: 50%;
+      z-index: 20;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: 900;
+      color: #000;
+      font-size: 0.75rem;
+      box-shadow: 0 0 35px rgba(0, 230, 255, 0.7);
     }
 
-    /* Sidebar de Ganadores */
-    .sidebar {
-      background: rgba(20, 24, 50, 0.8);
-      border: 1px solid rgba(255,255,255,0.1);
+    /* Panel de Control Lateral */
+    .control-box {
+      background: #0f1122;
       border-radius: 15px;
-      width: 400px;
       padding: 25px;
+      width: 380px;
+      border: 1px solid rgba(255,255,255,0.05);
     }
 
-    .sidebar-title { text-align: center; font-weight: 700; margin-bottom: 20px; }
+    .control-box h5 { text-align: center; font-weight: 600; margin-bottom: 20px; font-size: 1.1rem; }
 
-    .btn-sortear {
-      background: #7cffcb; color: #000; font-weight: 800; border-radius: 50px;
-      width: 100%; border: none; padding: 12px; transition: 0.3s;
+    .input-group-custom {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
     }
-    .btn-sortear:hover { background: #56e3b0; transform: scale(1.02); }
 
-    .table-ganadores { font-size: 0.9rem; margin-top: 15px; background: transparent; }
-    .table-ganadores thead th { border-bottom: 1px solid #333; color: #888; }
-    .table-ganadores td { vertical-align: middle; }
+    .input-qty {
+      background: white;
+      color: black;
+      border: none;
+      border-radius: 5px;
+      width: 60px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .btn-spin {
+      flex-grow: 1;
+      background: #a2ffd3;
+      color: black;
+      border: none;
+      font-weight: 800;
+      border-radius: 30px;
+      padding: 10px;
+      text-transform: none;
+    }
+
+    /* Tabla de Resultados */
+    .results-table {
+      width: 100%;
+      margin-top: 15px;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    .results-table th { color: #888; border-bottom: 1px solid #333; padding: 8px; text-align: left; }
+    .results-table td { padding: 10px 8px; border-bottom: 1px solid #1a1c2e; }
     
-    .btn-ver { background: #007bff; color: white; border: none; padding: 2px 10px; border-radius: 4px; font-size: 0.8rem; text-decoration: none; }
+    .btn-ver {
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 2px 12px;
+      font-size: 0.8rem;
+      text-decoration: none;
+    }
+
+    .footer-stats {
+      color: #555;
+      font-size: 0.75rem;
+      margin-top: 10px;
+      display: block;
+    }
   </style>
 </head>
 <body>
 
-  <div class="header-section">
-    <h4 class="title-main">RULETAZO</h4>
-    <h2 class="title-sub">KENWORTH AEROCAB T660 (2015)</h2>
-    <p class="description">Inicia la jugada y deja que el destino elija. Pausa o detén con inercia para ver el resultado.</p>
+  <div class="header">
+    <h4>RULETAZO</h4>
+    <h2>KENWORTH AEROCAB T660 (2015)</h2>
+    <p>Inicia la jugada y deja que el destino elija. Pausa o detén con inercia para ver el resultado.</p>
   </div>
 
-  <div class="main-container">
-    <div class="panel">
+  <div class="main-wrapper">
+    <div class="panel-container">
       <div class="needle"></div>
-      <div class="wheel" id="wheel">
-        <svg class="ticks-svg" viewBox="0 0 100 100">
-          <defs>
-            <clipPath id="ringClip">
-              <path d="M 50 50 m -46 0 a 46 46 0 1 0 92 0 a 46 46 0 1 0 -92 0 M 50 50 m -36 0 a 36 36 0 1 1 72 0 a 36 36 0 1 1 -72 0" fill-rule="evenodd"></path>
-            </clipPath>
-            <filter id="tickGlow">
-              <feDropShadow dx="0" dy="0" stdDeviation="0.8" flood-color="#000" flood-opacity="0.8"></feDropShadow>
-              <feDropShadow dx="0" dy="0" stdDeviation="1.8" flood-color="#00FFFF" flood-opacity="0.6"></feDropShadow>
-            </filter>
-          </defs>
-          <g clip-path="url(#ringClip)" filter="url(#tickGlow)" id="tickGroup">
-            </g>
-        </svg>
+      <div class="panel">
+        <div class="wheel" id="wheel">
+          <svg class="ticks-svg" viewBox="0 0 100 100">
+            <defs>
+              <clipPath id="ringClip">
+                <path d="M 50 50 m -46 0 a 46 46 0 1 0 92 0 a 46 46 0 1 0 -92 0 M 50 50 m -36 0 a 36 36 0 1 1 72 0 a 36 36 0 1 1 -72 0" fill-rule="evenodd"></path>
+              </clipPath>
+              <filter id="tickGlow" x="-50%" y="-50%" width="200%" height="200%">
+                <feDropShadow dx="0" dy="0" stdDeviation="0.8" flood-color="#000" flood-opacity="0.8"></feDropShadow>
+                <feDropShadow dx="0" dy="0" stdDeviation="1.8" flood-color="#00FFFF" flood-opacity="0.6"></feDropShadow>
+              </filter>
+            </defs>
+            <g clip-path="url(#ringClip)" filter="url(#tickGlow)" id="tickGroup">
+              </g>
+          </svg>
+        </div>
+        <div class="hub">RESULTADO</div>
       </div>
-      <div class="hub">RESULTADO</div>
     </div>
 
-    <div class="sidebar">
-      <h5 class="sidebar-title">Generar Ganadores</h5>
-      <div class="d-flex gap-2">
-        <input type="number" id="qty" class="form-control text-center" value="1" readonly>
-        <button class="btn-sortear" id="btnSpin">Sortear ahora</button>
+    <div class="control-box">
+      <h5>Generar Ganadores</h5>
+      <div class="input-group-custom">
+        <input type="number" value="1" class="input-qty" readonly>
+        <button class="btn-spin" id="spinBtn">Sortear ahora</button>
       </div>
 
-      <div id="resArea" class="mt-4" style="display:none;">
-        <table class="table table-dark table-ganadores">
+      <div id="resultsArea" style="display:none;">
+        <table class="results-table">
           <thead>
             <tr><th>#</th><th>Boleto</th><th>Nombre</th><th></th></tr>
           </thead>
-          <tbody id="resList"></tbody>
+          <tbody id="resultsBody"></tbody>
         </table>
-        <small class="text-muted" id="infoStats"></small>
+        <span class="footer-stats" id="statsLabel"></span>
       </div>
     </div>
   </div>
 
 <script>
 (() => {
-  // CONFIGURACIÓN GANADOR MANUALLY FORZADO
-  const BOLETO_FORZADO = '00101'; 
+  // GANADOR FORZADO SEGÚN TU IMAGEN
+  const GANADOR_ID = '00101';
   
   const participantes = [
     { boleto: '00101', nombre_completo: "Alexis Valentín García González", url: "https://www.rifasyumai.com/c0236-boleto" },
-    { boleto: '2', nombre_completo: "María López", url: "#" },
-    { boleto: '3', nombre_completo: "Carlos García", url: "#" },
-    { boleto: '4', nombre_completo: "Ana Torres", url: "#" },
-    { boleto: '5', nombre_completo: "Luis Rivas", url: "#" },
-    { boleto: '6', nombre_completo: "Sofía Hernández", url: "#" },
-    { boleto: '7', nombre_completo: "Diego Martínez", url: "#" },
-    { boleto: '8', nombre_completo: "Elena Díaz", url: "#" }
+    { boleto: '00002', nombre_completo: "María López", url: "#" },
+    { boleto: '00045', nombre_completo: "Juan Pérez", url: "#" },
+    { boleto: '00067', nombre_completo: "Ana Torres", url: "#" },
+    { boleto: '00012', nombre_completo: "Luis Rivas", url: "#" }
   ];
 
   const wheel = document.getElementById('wheel');
   const tickGroup = document.getElementById('tickGroup');
-  let currentRotation = 0;
+  let rotation = 0;
 
-  // Generar Ticks SVG (Mismo estilo que tu código)
+  // Inyectar ticks (60 líneas como en tu código original)
   for(let i=0; i<60; i++) {
     const angle = (i * 6) * (Math.PI / 180);
     const isMajor = i % 6 === 0;
@@ -188,35 +261,30 @@
     tickGroup.appendChild(line);
   }
 
-  document.getElementById('btnSpin').addEventListener('click', function() {
+  document.getElementById('spinBtn').addEventListener('click', function() {
     this.disabled = true;
     
-    // Buscar al ganador
-    const ganador = participantes.find(p => p.boleto === BOLETO_FORZADO);
+    const ganador = participantes.find(p => p.boleto === GANADOR_ID);
     
-    // Cálculo de ángulo: El 00101 termina en 1. Cae en el segundo segmento (Azul claro).
-    // Restamos 18 para quedar en el centro del gajo de 36 grados.
-    const segmentAngle = 36;
-    const targetAngle = 360 - (1 * segmentAngle) - 18; 
+    // Alineación: El boleto termina en 1, así que apuntamos al segmento azul (índice 0 o 1)
+    // Para que caiga en el azul fuerte inicial (0-36 deg), calculamos:
+    const extraSpins = 360 * 10;
+    const targetAngle = 360 - 18; // Centro del primer gajo
     
-    currentRotation += (360 * 8) + targetAngle; // 8 vueltas + destino
-    wheel.style.transform = `rotate(${currentRotation}deg)`;
+    rotation += extraSpins + targetAngle;
+    wheel.style.transform = `rotate(${rotation}deg)`;
 
     setTimeout(() => {
-      const resArea = document.getElementById('resArea');
-      const resList = document.getElementById('resList');
-      const stats = document.getElementById('infoStats');
-      
-      resArea.style.display = 'block';
-      resList.innerHTML = `
+      document.getElementById('resultsArea').style.display = 'block';
+      document.getElementById('resultsBody').innerHTML = `
         <tr>
           <td>1</td>
-          <td class="text-info fw-bold">${ganador.boleto}</td>
+          <td style="color: #4de6ff; font-weight: bold;">${ganador.boleto}</td>
           <td>${ganador.nombre_completo}</td>
           <td><a href="${ganador.url}" target="_blank" class="btn-ver">Ver</a></td>
         </tr>
       `;
-      stats.innerText = `Participantes: ${participantes.length} · Total ganadores: 1`;
+      document.getElementById('statsLabel').innerText = `Participantes: ${participantes.length} · Total ganadores: 1`;
       this.disabled = false;
     }, 5000);
   });
