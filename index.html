@@ -238,11 +238,43 @@ function blip(freq = 880, dur = 0.05, type = 'triangle') {
   } catch (_) {}
 }
 
+// Función para detener la ruleta en un índice específico
+function stopToIndex(idx, extraTurns = 2.5) {
+  return new Promise((resolve) => {
+    if (!spinning) return resolve();
+    paused = false;
+    const segWidth = 1 / segments.length;
+    const segCenter = idx * segWidth + segWidth / 2;
+    const pointer = 0;
+    const fractional = rot - Math.floor(rot);
+    let delta = (pointer - fractional - segCenter);
+    delta = ((delta % 1) + 1) % 1;
+    const targetRot = Math.floor(rot) + fractional + delta + extraTurns;
+
+    const T = 2000 + Math.random() * 600;
+    wheel.style.transition = `transform ${T}ms cubic-bezier(.08,.9,.09,1.0)`;
+    rot = targetRot;
+    render();
+
+    setTimeout(() => {
+      spinning = false;
+      vel = 0;
+      rafId && cancelAnimationFrame(rafId);
+      rafId = null;
+      spawnBurst(36);
+      blip(520, .06, 'triangle');
+      setTimeout(() => blip(740, .06, 'triangle'), 80);
+      setTimeout(() => blip(980, .06, 'triangle'), 160);
+      resolve();
+    }, T + 50);
+  });
+}
+
 (() => {
   /* ========= CONFIG ========= */
   const SORTEO_URL = '/themes/theme_01/core/ruleta/sorteo_ganadores.php';  // <- cambia si tu endpoint está en otra ruta
   const app = document.getElementById('ruletaApp');
-  const tabla   = app?.dataset?.tabla || 'boletos';
+  const tabla = app?.dataset?.tabla || 'boletos';
   const digitos = parseInt(app?.dataset?.digitos || '0', 10);
 
   // Formatea sólo si son dígitos puros; respeta strings que ya traen ceros
@@ -255,16 +287,16 @@ function blip(freq = 880, dur = 0.05, type = 'triangle') {
   }
 
   /* ========= DOM base (ruleta) ========= */
-  const wheel  = document.getElementById('wheel');
-  const hub    = document.getElementById('hub');
-  const burst  = document.getElementById('burst');
+  const wheel = document.getElementById('wheel');
+  const hub = document.getElementById('hub');
+  const burst = document.getElementById('burst');
 
   /* ========= DOM sorteo (UI derecha) ========= */
   const btnSortear = document.getElementById('btnSortear');
   const inpN = document.getElementById('inpN');
   const box = document.getElementById('boxGanadores');
-  const tb  = document.getElementById('tbGanadores');
-  const meta= document.getElementById('metaGanadores');
+  const tb = document.getElementById('tbGanadores');
+  const meta = document.getElementById('metaGanadores');
 
   /* ========= Lógica de “Sortear ahora” con animación sincronizada ========= */
   async function sortear() {
