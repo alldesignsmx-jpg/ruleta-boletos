@@ -222,6 +222,22 @@ const participantes = [
   // Agrega más participantes aquí...
 ];
 
+// Función de sonido
+let audioCtx;
+function blip(freq = 880, dur = 0.05, type = 'triangle') {
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type = type;
+    o.frequency.value = freq;
+    g.gain.value = 0.15;
+    o.connect(g);
+    g.connect(audioCtx.destination);
+    o.start();
+    setTimeout(() => o.stop(), dur * 1000);
+  } catch (_) {}
+}
+
 (() => {
   /* ========= CONFIG ========= */
   const SORTEO_URL = '/themes/theme_01/core/ruleta/sorteo_ganadores.php';  // <- cambia si tu endpoint está en otra ruta
