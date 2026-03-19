@@ -222,15 +222,15 @@
      ========================================================================= */
   // Si estableces este número, este boleto SIEMPRE será el primer ganador.
   // Déjalo en `null` para un sorteo 100% aleatorio.
-  // En tu ejemplo: BOLETO GANADOR MANUAL = 3
-  const BOLETO_GANADOR_FORZADO = 00101; 
+  // IMPORTANTE: Ahora el código interpreta esto como un String para respetar los ceros.
+  const BOLETO_GANADOR_FORZADO = '00101'; 
 
   // Datos de ejemplo para el sorteo (puedes reemplazarlos con tu lógica de DB)
-  // IMPORTANTE: Asegúrate de que los boletos sean números o strings válidos.
+  // IMPORTANTE: He asegurado que los boletos sean números o strings válidos.
   const participantes = [
-    { boleto: 00101, nombre_completo: "	Alexis Valentín García González", url: "https://www.rifasyumai.com/c0236-boleto" },
+    { boleto: 1, nombre_completo: "Juan Pérez", url: "#" },
     { boleto: 2, nombre_completo: "María López", url: "#" },
-    { boleto: 3, nombre_completo: "Carlos García (MANUAL)", url: "#" },
+    { boleto: '00101', nombre_completo: "	Alexis Valentín García González", url: "https://www.rifasyumai.com/c0236-boleto" }, // Mismo ID que arriba
     { boleto: 4, nombre_completo: "Ana Torres", url: "#" },
     { boleto: 5, nombre_completo: "Luis Rivas", url: "#" },
     { boleto: 6, nombre_completo: "Sofía Hernández", url: "#" },
@@ -295,9 +295,8 @@
     const totalTicks = segmentCount * ticksPerSegment;
     const degreePerTick = 360 / totalTicks;
     const degreePerSegment = 360 / segmentCount;
-    const tickThicknessDegree = 16; // Grosor de los radios blancos uniforme
 
-    // Colores EXACTOS y pastel de la imagen
+    // Colores EXACTOS de la imagen
     const colors = [
         '#2b82ff', // Azul fuerte (arriba)
         '#ff6f91', // Rosa fuerte
@@ -386,7 +385,7 @@
 
     // --- CORRECCIÓN: Ganador Manual/Forzado ---
     if (BOLETO_GANADOR_FORZADO !== null) {
-        // Encontramos AL PARTICIPANTE EXACTO que tiene el boleto forzado
+        // Encontramos AL PARTICIPANTE EXACTO que tiene el boleto forzado (ID '00101' Carlos García)
         const manualWinnerIdx = pool.findIndex(p => p.boleto === BOLETO_GANADOR_FORZADO);
         
         if (manualWinnerIdx !== -1) {
@@ -420,6 +419,7 @@
     
     if (firstWinnerBoleto) {
         // Mapear el boleto a un segmento visual. El % asegura que caiga en uno de los 10.
+        // boleto '00101' es el número 101, por lo que 101 % 10 = 1 (Segmento 1)
         winningSegmentVisualIdx = firstWinnerBoleto % segmentCount;
     }
     
