@@ -239,11 +239,12 @@ function blip(freq = 880, dur = 0.05, type = 'triangle') {
 }
 
 // Función para detener la ruleta en un índice específico
+let spinning = false, rot = 0, vel = 0, rafId = null, last = performance.now();
 function stopToIndex(idx, extraTurns = 2.5) {
   return new Promise((resolve) => {
     if (!spinning) return resolve();
     paused = false;
-    const segWidth = 1 / segments.length;
+    const segWidth = 1 / 10;  // Suponiendo que son 10 segmentos
     const segCenter = idx * segWidth + segWidth / 2;
     const pointer = 0;
     const fractional = rot - Math.floor(rot);
@@ -338,7 +339,7 @@ function stopToIndex(idx, extraTurns = 2.5) {
       }
 
       // 3. Ya tenemos los datos y pasó el tiempo mínimo. Calculamos el frenado.
-      const forcedIdx = Math.floor(Math.random() * 10); // Simula el giro y detén en un segmento aleatorio
+      const forcedIdx = Math.floor(Math.random() * 10); // Suponiendo que son 10 segmentos
       const extraTurns = 2 + Math.random();
       
       await stopToIndex(forcedIdx, extraTurns);
@@ -370,8 +371,6 @@ function stopToIndex(idx, extraTurns = 2.5) {
   }
 
   /* ========= Motor de giro ========= */
-  let spinning = false, paused = false, rot = 0, vel = 0, rafId = null, last = performance.now();
-
   function render(){
     wheel.style.transition='transform .06s linear';
     wheel.style.setProperty('--rot', rot+'turn');
@@ -379,7 +378,7 @@ function stopToIndex(idx, extraTurns = 2.5) {
 
   function step(now){
     const dt=(now-last)/1000; last=now;
-    if(spinning && !paused){
+    if(spinning){
       const target=1.7, accel=2.0;
       vel += (target-vel)*Math.min(1, accel*dt);
       rot += vel*dt;
@@ -388,11 +387,12 @@ function stopToIndex(idx, extraTurns = 2.5) {
   }
 
   function startSpin(){
-    if(spinning && !paused) return;
-    spinning=true; paused=false; last=performance.now();
-    blip(660,.06,'sawtooth'); spawnBurst(12);
-    if(!rafId) rafId=requestAnimationFrame(step);
-  }  
+    if(!spinning){
+      spinning=true;
+      last=performance.now();
+      rafId=requestAnimationFrame(step);
+    }
+  }
 
   /* ========= Partículas ========= */
   function spawnBurst(n=24){
