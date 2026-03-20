@@ -167,7 +167,7 @@
 
   <div class="page-wrap container">
     <h1>R U L E T A Z O<br>Kenworth AeroCab T660 (2015)</h1>
-    <p class="sub">Inicia la jugada y deja que el destino elija.</p>
+    <p class="sub">Inicia la jugada y deja que el destino elija. Pausa o detén con inercia para ver el resultado.</p>
 
     <div class="row g-4 align-items-start">
       <div class="col-12 col-lg-6">
@@ -207,7 +207,6 @@
                 </thead>
                 <tbody id="tbGanadores"></tbody>
               </table>
-              <div class="small text-white-50 mt-1" id="metaGanadores"></div>
             </div>
           </div>
         </div>
@@ -456,7 +455,6 @@
       `).join('');
       
       // Mostrar info meta
-      document.getElementById('metaGanadores').textContent = `Participantes: ${participantes.length} · Total ganadores: ${ganadores.length}`;
       box.style.display = 'block';
       
       btnSortear.disabled = false;
